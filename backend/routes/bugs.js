@@ -33,6 +33,6 @@ router.put('/:id/assign', [
   body('assignedTo').isMongoId().withMessage('Invalid assigned user ID')
 ], assignBug);
 
-router.delete('/:id', auth, authorize('admin'), deleteBug);
+router.delete('/:id', auth, authorize('admin', 'developer'), deleteBug);
 
 module.exports = router;

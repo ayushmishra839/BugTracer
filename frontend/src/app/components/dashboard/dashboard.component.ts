@@ -580,26 +580,48 @@ export class DashboardComponent implements OnInit {
 
   deleteBug(bugId: string) {
     if (confirm('Are you sure you want to delete this bug?')) {
+      console.log('Attempting to delete bug:', bugId);
       this.bugService.deleteBug(bugId).subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('Delete response:', response);
           this.snackBar.open('Bug deleted successfully', 'Close', { duration: 3000 });
           this.loadBugs();
         },
-        error: () => {
-          this.snackBar.open('Failed to delete bug', 'Close', { duration: 3000 });
+        error: (error) => {
+          console.error('Delete error:', error);
+          let errorMessage = 'Failed to delete bug';
+          if (error.status === 403) {
+            errorMessage = 'You do not have permission to delete bugs';
+          } else if (error.status === 404) {
+            errorMessage = 'Bug not found';
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          }
+          this.snackBar.open(errorMessage, 'Close', { duration: 3000 });
         }
       });
     }
   }
 
   closeBug(bugId: string) {
+    console.log('Attempting to close bug:', bugId);
     this.bugService.updateBug(bugId, { status: 'closed' }).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Close response:', response);
         this.snackBar.open('Bug closed successfully', 'Close', { duration: 3000 });
         this.loadBugs();
       },
-      error: () => {
-        this.snackBar.open('Failed to close bug', 'Close', { duration: 3000 });
+      error: (error) => {
+        console.error('Close error:', error);
+        let errorMessage = 'Failed to close bug';
+        if (error.status === 403) {
+          errorMessage = 'You do not have permission to close bugs';
+        } else if (error.status === 404) {
+          errorMessage = 'Bug not found';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        this.snackBar.open(errorMessage, 'Close', { duration: 3000 });
       }
     });
   }
